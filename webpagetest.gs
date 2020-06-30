@@ -187,11 +187,22 @@ function getResults() {
                 for(var column in resultsMap) {
                     cell = sheet.setActiveCell(column + (2 + i));
                     
-                    var value = eval("result." + resultsMap[column].value);  // TODO: remove eval
-                    
-                    // some results field may not exist in some tests e.g. SpeedIndex relies on video capture
-                    if(value != undefined) {
-                        cell.setValue(eval("result." + resultsMap[column].value));
+                    if(resultsMap[column].value.indexOf('chromeUserTiming')>-1){
+                        //this is from the newish chromeUserTiming section and requires looping for finding the metric.
+                        var metric = resultsMap[column].value.split('chromeUserTiming.')[1]
+                        var userTiming = eval("result.data.median.firstView.chromeUserTiming")
+                        for(var counter=0;counter<userTiming.length;counter++){
+                            if(userTiming[counter].name==metric){
+                                cell.setValue(userTiming[counter].time)
+                            }
+                        }
+                    }else{
+                        var value = eval("result." + resultsMap[column].value);  // TODO: remove eval
+                        
+                        // some results field may not exist in some tests e.g. SpeedIndex relies on video capture
+                        if(value != undefined) {
+                            cell.setValue(eval("result." + resultsMap[column].value));
+                        }
                     }
                 }
             }
